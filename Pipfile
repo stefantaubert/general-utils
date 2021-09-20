@@ -13,11 +13,7 @@ pipenv-setup = "*"
 rope = "*"
 
 [packages]
-matplotlib = "*"
-numpy = "*"
-Pillow = "*"
-imageio = "*"
-scikit-image = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.8"
