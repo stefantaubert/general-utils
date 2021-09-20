@@ -1,13 +1,12 @@
 import dataclasses
+import json
 import math
 import os
 import pickle
-import random
 import unicodedata
 from pathlib import Path
-from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar
-
-from tqdm import tqdm
+from typing import (Any, Callable, Dict, List, Optional, Set, Tuple, Type,
+                    TypeVar)
 
 
 def get_basename(filepath: Path) -> str:
@@ -80,17 +79,16 @@ def str_to_int(val: str) -> int:
 _T = TypeVar('_T')
 
 
-class GenericList(list, Generic[_T]):
-  def items(self, with_tqdm: bool = False) -> List[_T]:
-    if with_tqdm:
-      return tqdm(self)
-    return self
+def parse_json(path: Path, encoding: str = 'utf-8') -> Dict:
+  assert path.is_file()
+  with path.open(mode='r', encoding=encoding) as f:
+    tmp = json.load(f)
+  return tmp
 
-  def get_random_entry(self) -> Optional[_T]:
-    if len(self) == 0:
-      return None
-    idx = random.choice(range(len(self)))
-    return self[idx]
+
+def save_json(path: Path, obj: Dict, encoding: str = 'utf-8') -> None:
+  with path.open(mode='w', encoding=encoding) as f:
+    json.dump(obj, f, ensure_ascii=False, indent=2)
 
 
 def console_out_len(text: str):
@@ -150,6 +148,10 @@ def make_batches_h_v(arr: List[_T], v: int, h: int) -> List[List[_T]]:
 
 def pass_lines(method: Callable[[str], Any], text: str) -> None:
   lines = text.split("\n")
+  pass_lines_list(method, lines)
+
+
+def pass_lines_list(method: Callable[[str], Any], lines: List[str]) -> None:
   for l in lines:
     method(l)
 
@@ -192,6 +194,12 @@ def set_types_according_to_dataclass(params: Dict[str, str], hparams: _T) -> Non
     params[custom_hparam] = get_value_in_type(hparam_value, new_value)
 
 
+def get_only_known_params(params: Dict[str, str], hparams: _T) -> Dict[str, str]:
+  available_params = dataclasses.asdict(hparams)
+  res = {k: v for k, v in params.items() if k in available_params.keys()}
+  return res
+
+
 def overwrite_custom_hparams(hparams_dc: _T, custom_hparams: Optional[Dict[str, str]]) -> _T:
   if custom_hparams is None:
     return hparams_dc
@@ -204,3 +212,10 @@ def overwrite_custom_hparams(hparams_dc: _T, custom_hparams: Optional[Dict[str, 
 
   result = dataclasses.replace(hparams_dc, **custom_hparams)
   return result
+
+
+def get_dataclass_from_dict(params: Dict[str, str], dc: Type[_T]) -> Tuple[_T, Set[str]]:
+  field_names = {x.name for x in dataclasses.fields(dc)}
+  res = {k: v for k, v in params.items() if k in field_names}
+  ignored = {k for k in params.keys() if k not in field_names}
+  return dc(**res), ignored

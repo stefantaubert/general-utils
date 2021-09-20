@@ -1,3 +1,4 @@
+import logging
 
 
 def disable_matplot_logger():
@@ -54,3 +55,12 @@ def disable_matplot_colorbar_logger():
     DEBUG:matplotlib.colorbar:Setting pcolormesh
   '''
   logging.getLogger('matplotlib.colorbar').disabled = True
+
+
+def disable_imageio_logger():
+  """
+  Disables:
+    WARNING:imageio:Lossy conversion from float64 to uint8. Range [-0.952922124289318, 1.0000000000043152]. Convert image to uint8 prior to saving to suppress this warning.
+    ...
+  """
+  logging.getLogger('imageio').disabled = True
