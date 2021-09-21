@@ -174,7 +174,10 @@ def get_chunk_name(i: int, chunksize: int, maximum: int) -> str:
 
 def get_value_in_type(old_value: _T, new_value: str) -> _T:
   old_type = type(old_value)
-  new_value_with_original_type = old_type(new_value)
+  if new_value == "":
+    new_value_with_original_type = None
+  else:
+    new_value_with_original_type = old_type(new_value)
   return new_value_with_original_type
 
 
