@@ -11,8 +11,18 @@ from typing import (Any, Callable, Dict, List, Optional, Set, Tuple, Type,
 
 def get_basename(filepath: Path) -> str:
   '''test.wav -> test'''
-  basename, _ = os.path.splitext(os.path.basename(filepath))
-  return basename
+  return filepath.stem
+  # basename, _ = os.path.splitext(os.path.basename(filepath))
+  # return basename
+
+
+def get_all_files_in_all_subfolders(dir: Path) -> Set[Path]:
+  all_files = set()
+  for root, _, files in os.walk(dir):
+    for name in files:
+      file_path = Path(root) / name
+      all_files.add(file_path)
+  return all_files
 
 
 def get_filepaths(parent_dir: Path) -> List[Path]:
