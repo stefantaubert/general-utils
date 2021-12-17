@@ -5,8 +5,8 @@ import os
 import pickle
 import unicodedata
 from pathlib import Path
-from typing import (Any, Callable, Dict, List, Optional, Set, Tuple, Type,
-                    TypeVar)
+from typing import (Any, Callable, Dict, Generator, List, Optional, Set, Tuple,
+                    Type, TypeVar)
 
 
 def get_basename(filepath: Path) -> str:
@@ -16,13 +16,11 @@ def get_basename(filepath: Path) -> str:
   # return basename
 
 
-def get_all_files_in_all_subfolders(dir: Path) -> Set[Path]:
-  all_files = set()
+def get_all_files_in_all_subfolders(dir: Path) -> Generator[Path, None, None]:
   for root, _, files in os.walk(dir):
     for name in files:
       file_path = Path(root) / name
-      all_files.add(file_path)
-  return all_files
+      yield file_path
 
 
 def get_filepaths(parent_dir: Path) -> List[Path]:
@@ -42,6 +40,11 @@ def get_filenames(parent_dir: Path) -> List[Path]:
 def get_subfolders(parent_dir: Path) -> List[Path]:
   names = get_subfolder_names(parent_dir)
   res = [parent_dir / x for x in names]
+  return res
+
+
+def get_all_subfolders(parent_dir: Path) -> Generator[Path, None, None]:
+  res = (folder_path for folder_path, _, _ in os.walk(parent_dir))
   return res
 
 
