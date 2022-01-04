@@ -4,9 +4,11 @@ import math
 import os
 import pickle
 import unicodedata
+from collections import OrderedDict
 from pathlib import Path
-from typing import (Any, Callable, Dict, Generator, List, Optional, Set, Tuple,
-                    Type, TypeVar)
+from typing import Any, Callable, Dict, Generator, List, Optional
+from typing import OrderedDict as OrderedDictType
+from typing import Set, Tuple, Type, TypeVar
 
 
 def get_basename(filepath: Path) -> str:
@@ -16,8 +18,23 @@ def get_basename(filepath: Path) -> str:
   # return basename
 
 
-def get_all_files_in_all_subfolders(dir: Path) -> Generator[Path, None, None]:
-  for root, _, files in os.walk(dir):
+def get_files_dict(directory: Path, filetypes: Set[str]) -> OrderedDictType[str, Path]:
+  result = OrderedDict(get_files_tuples(directory, filetypes))
+  return result
+
+
+def get_files_tuples(directory: Path, filetypes: Set[str]) -> Generator[Tuple[str, Path], None, None]:
+  filetypes_lower = {ft.lower() for ft in filetypes}
+  all_files = get_all_files_in_all_subfolders(directory)
+  resulting_files = (
+    (str(file.relative_to(directory).parent / file.stem), file.relative_to(directory))
+      for file in all_files if file.suffix.lower() in filetypes_lower
+  )
+  return resulting_files
+
+
+def get_all_files_in_all_subfolders(directory: Path) -> Generator[Path, None, None]:
+  for root, _, files in os.walk(directory):
     for name in files:
       file_path = Path(root) / name
       yield file_path
