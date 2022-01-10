@@ -19,7 +19,7 @@ def get_basename(filepath: Path) -> str:
 
 
 def get_files_dict(directory: Path, filetypes: Set[str]) -> OrderedDictType[str, Path]:
-  result = OrderedDict(get_files_tuples(directory, filetypes))
+  result = OrderedDict(sorted(get_files_tuples(directory, filetypes)))
   return result
 
 
