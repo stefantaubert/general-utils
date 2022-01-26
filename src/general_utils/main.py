@@ -73,6 +73,7 @@ def get_subfolder_names(parent_dir: Path) -> List[str]:
 
 
 def read_lines(path: Path, encoding: str = 'utf-8') -> List[str]:
+  assert isinstance(path, Path)
   assert path.is_file()
   with path.open(mode="r", encoding=encoding) as f:
     lines = f.readlines()
@@ -81,13 +82,15 @@ def read_lines(path: Path, encoding: str = 'utf-8') -> List[str]:
 
 
 def save_obj(obj: Any, path: Path) -> None:
+  assert isinstance(path, Path)
   assert path.parent.exists() and path.parent.is_dir()
   with open(path, mode="wb") as file:
     pickle.dump(obj, file)
 
 
 def load_obj(path: Path) -> Any:
-  assert path.exists() and path.is_file()
+  assert isinstance(path, Path)
+  assert path.is_file()
   with open(path, mode="rb") as file:
     return pickle.load(file)
 
